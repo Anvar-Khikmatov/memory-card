@@ -1,0 +1,134 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+
+*,
+::before,
+::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: url(assets/bg.webp);
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  font-family: 'MedievalSharp', 'Courier New', cursive;
+  color: white;
+}
+
+.body-wrapper {
+  min-height: 100vh;
+  min-width: 100vw;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+
+.scoreboard-wrapper {
+  height: 6rem;
+  min-height: fit-content;
+  /* background-color: antiquewhite; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.round-display {
+  text-align: center;
+}
+
+.best-score,
+.current-score {
+  width: 15rem;
+  height: 70%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background-color: aqua; */
+  font-size: larger;
+  color: 	#6ba87d;
+}
+
+.grid-card-wrapper {
+  min-height: fit-content;
+  min-width: 100%;
+  padding: 2rem;
+  /* background-color: red; */
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: center;
+
+}
+
+.card-wrapper {
+  width: 13rem;
+  height: 8rem;
+  border-radius: 8px 8px 0 0;
+
+  img {
+    width: 100%;
+    height: 100%;
+    border-radius: inherit;
+  }
+
+  .img-names {
+    display: flex;
+    justify-content: center;
+    font-size: x-large;
+    background-color: rgb(70, 70, 70);
+    color: #a8c5c2;
+    border-radius: 0 0 8px 8px;
+    margin-top: 0;
+  }
+}
+
+.modal-win {
+
+}
+
+.modal-win,
+.modal-loss {
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(0, 0, 0, 0.6);
+  /* background-color: #0a0f0d; */
+  position: absolute;
+}
+
+.modal-content {
+  height: 7rem;
+  width: 20rem;
+  background-color: #1a1410;
+  color: #8b3a3a;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  gap: 1rem;
+  font-size: 1.5rem;
+  border: 1px solid rgb(255, 255, 255);
+  border-radius: 10px;
+}
+
+.modal-btn {
+  all: unset;
+  min-width: fit-content;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 40%;
+  height: 2rem;
+  background-color: #2a2418;
+  color: 	#d4af37;
+  font-size: 1rem;
+}
+

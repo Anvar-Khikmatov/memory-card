@@ -1,0 +1,146 @@
+import { useState, useEffect } from "react";
+import "./App.css";
+import GridCard from "./components/CardGrid.jsx";
+import Scoreboard from "./components/Scoreboard.jsx";
+
+function App() {
+  const [data, setData] = useState(null);
+  const [fullData, setFullData] = useState(null);
+  const [activeCards, setActiveCards] = useState([]);
+  const [clickedCards, setClickedCards] = useState([]);
+  const [initialCard, setInitialCard] = useState(4);
+  const [rounds, setRounds] = useState(1);
+  const [winner, setWinner] = useState(false);
+  const [lost, setLost] = useState(false);
+  const [clickedTimes, setClickedTimes] = useState(0);
+  const [currentScore, setCurrentScore] = useState(0);
+  const [bestScore, setBestScore] = useState(0);
+
+  const getBigReset = () => {
+    setData(fullData)
+    setActiveCards([])
+    setClickedCards([])
+    setInitialCard(4)
+    setRounds(1)
+    setWinner(true)
+    setClickedTimes(0)
+    setCurrentScore(0)
+  }
+
+  const getLossRound = () => {
+    setLost(true)
+    setCurrentScore(0);
+    setClickedCards([]);
+    setInitialCard(4)
+    setRounds(1)
+    setClickedTimes(0)
+    setData(fullData)
+  }
+
+  const getPlayRound = (id) => {
+    setClickedCards([...clickedCards, id]);
+    setCurrentScore((prev) => prev + 1);
+    shuffleInPlace(activeCards)
+  }
+
+  const getNextRound = (id) => {  
+    const removeUsedData = data.filter(obj=> !activeCards.some(hero => hero.id === obj.id))
+    setData(removeUsedData)
+    setActiveCards([])
+    setClickedCards([])
+    setClickedTimes(0)
+    setCurrentScore((prev) => prev + 1);
+    setInitialCard((prev) => prev + 2)
+    setRounds(prev => prev + 1)
+  }
+
+  const shuffleInPlace = (activeCards) => {
+    const tempActiveCards = [...activeCards];
+    for (let i = tempActiveCards.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [tempActiveCards[i], tempActiveCards[j]] = [
+        tempActiveCards[j],
+        tempActiveCards[i],
+      ];
+    }
+    setActiveCards(tempActiveCards);
+  };
+
+  const handleClick = (id) => {
+    setClickedTimes((prev) => prev + 1);
+
+    if (clickedCards.includes(id)) {
+      getLossRound()
+    }else if(clickedTimes + 1 == initialCard) {
+      getNextRound(id)
+    } else {
+      getPlayRound(id)
+    }
+  };
+
+
+  useEffect(() => {
+    async function getCardInfo() {
+      const response = await fetch("https://api.opendota.com/api/heroes");
+      const data = await response.json();
+      const cleaned = data.map((hero) => ({
+        ...hero,
+        imgName: hero.name.replace("npc_dota_hero_", ""),
+      }));
+      setData(cleaned);
+      setFullData(cleaned)
+    }
+    getCardInfo();
+  }, []);
+
+  useEffect(() => {
+    if (!data) return;
+    let chosenCards = [];
+    for (let i = 0; i < initialCard; i++) {
+      const randomNumber = Math.floor(Math.random() * (data.length - 1));
+      if(!chosenCards.some(obj => obj.id == data[randomNumber].id)) {
+         chosenCards.push(data[randomNumber]);
+      }else i--;
+    }
+    setActiveCards(chosenCards);
+  }, [data]);
+
+  useEffect(() => {
+    if(currentScore > bestScore) {
+      setBestScore(currentScore)
+    }
+  }, [currentScore])
+
+  useEffect(() => {
+    if(rounds === 2) getBigReset()
+  }, [rounds])
+
+  if(!data) return
+  // console.log("data", data.length);
+  // console.log("active",activeCards);
+  
+
+  return (
+    <div className="body-wrapper">
+      <Scoreboard currentScore={currentScore} bestScore={bestScore} rounds={rounds} />
+
+      <GridCard activeCards={activeCards} handleClick={handleClick} />
+
+      {winner && <div className="modal-win">
+        <div className="modal-content"> 
+          You are the winner
+          <button className="modal-btn" onClick={() => setWinner(false) }>Play again</button>
+        </div>
+      </div>}
+
+      {lost && <div className="modal-loss">
+        <div className="modal-content">
+          Better luck next time
+        <button className="modal-btn" onClick={() => setLost(false) }>Play again</button>
+        </div>
+      </div>}
+    </div>
+  );
+}
+
+export default App;
