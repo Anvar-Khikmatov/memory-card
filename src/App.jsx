@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import GridCard from "./components/CardGrid.jsx";
 import Scoreboard from "./components/Scoreboard.jsx";
+import { GiSoundOn, GiSoundOff } from "react-icons/gi";
 
 function App() {
   const [data, setData] = useState(null);
@@ -12,72 +13,93 @@ function App() {
   const [rounds, setRounds] = useState(1);
   const [winner, setWinner] = useState(false);
   const [lost, setLost] = useState(false);
+  const [isShuffling, setShuffling] = useState(false);
   const [clickedTimes, setClickedTimes] = useState(0);
   const [currentScore, setCurrentScore] = useState(0);
   const [bestScore, setBestScore] = useState(0);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = useRef(null);
 
   const getBigReset = () => {
-    setData(fullData)
-    setActiveCards([])
-    setClickedCards([])
-    setInitialCard(4)
-    setRounds(1)
-    setWinner(true)
-    setClickedTimes(0)
-    setCurrentScore(0)
-  }
+    setData(fullData);
+    setActiveCards([]);
+    setClickedCards([]);
+    setInitialCard(4);
+    setRounds(1);
+    setWinner(true);
+    setClickedTimes(0);
+    setCurrentScore(0);
+  };
 
   const getLossRound = () => {
-    setLost(true)
+    setLost(true);
     setCurrentScore(0);
     setClickedCards([]);
-    setInitialCard(4)
-    setRounds(1)
-    setClickedTimes(0)
-    setData(fullData)
-  }
+    setInitialCard(4);
+    setRounds(1);
+    setClickedTimes(0);
+    setData(fullData);
+  };
 
   const getPlayRound = (id) => {
     setClickedCards([...clickedCards, id]);
     setCurrentScore((prev) => prev + 1);
-    shuffleInPlace(activeCards)
-  }
+    shuffleInPlace(activeCards);
+  };
 
-  const getNextRound = (id) => {  
-    const removeUsedData = data.filter(obj=> !activeCards.some(hero => hero.id === obj.id))
-    setData(removeUsedData)
-    setActiveCards([])
-    setClickedCards([])
-    setClickedTimes(0)
+  const getNextRound = (id) => {
+    const removeUsedData = data.filter(
+      (obj) => !activeCards.some((hero) => hero.id === obj.id),
+    );
+    setData(removeUsedData);
+    setActiveCards([]);
+    setClickedCards([]);
+    setClickedTimes(0);
     setCurrentScore((prev) => prev + 1);
-    setInitialCard((prev) => prev + 2)
-    setRounds(prev => prev + 1)
-  }
+    setInitialCard((prev) => prev + 2);
+    setRounds((prev) => prev + 1);
+  };
 
   const shuffleInPlace = (activeCards) => {
-    const tempActiveCards = [...activeCards];
-    for (let i = tempActiveCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [tempActiveCards[i], tempActiveCards[j]] = [
-        tempActiveCards[j],
-        tempActiveCards[i],
-      ];
-    }
-    setActiveCards(tempActiveCards);
+    setShuffling(true);
+    setTimeout(() => {
+      const tempActiveCards = [...activeCards];
+      for (let i = tempActiveCards.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [tempActiveCards[i], tempActiveCards[j]] = [
+          tempActiveCards[j],
+          tempActiveCards[i],
+        ];
+      }
+      setShuffling(false);
+      setActiveCards(tempActiveCards);
+    }, 280);
   };
 
   const handleClick = (id) => {
     setClickedTimes((prev) => prev + 1);
-
     if (clickedCards.includes(id)) {
-      getLossRound()
-    }else if(clickedTimes + 1 == initialCard) {
-      getNextRound(id)
+      getLossRound();
+    } else if (clickedTimes + 1 == initialCard) {
+      getNextRound(id);
     } else {
-      getPlayRound(id)
+      getPlayRound(id);
     }
   };
 
+  const toggleSound = () => {
+    if (isPlaying) {
+      audioRef.current.pause();
+    } else {
+      audioRef.current.play();
+    }
+    setIsPlaying((prev) => !prev);
+  };
+
+  useEffect(() => {
+    audioRef.current = new Audio("/assets/dota2-reborn.mp3");
+    audioRef.current.loop = true;
+  }, []);
 
   useEffect(() => {
     async function getCardInfo() {
@@ -88,7 +110,7 @@ function App() {
         imgName: hero.name.replace("npc_dota_hero_", ""),
       }));
       setData(cleaned);
-      setFullData(cleaned)
+      setFullData(cleaned);
     }
     getCardInfo();
   }, []);
@@ -98,47 +120,64 @@ function App() {
     let chosenCards = [];
     for (let i = 0; i < initialCard; i++) {
       const randomNumber = Math.floor(Math.random() * (data.length - 1));
-      if(!chosenCards.some(obj => obj.id == data[randomNumber].id)) {
-         chosenCards.push(data[randomNumber]);
-      }else i--;
+      if (!chosenCards.some((obj) => obj.id == data[randomNumber].id)) {
+        chosenCards.push(data[randomNumber]);
+      } else i--;
     }
     setActiveCards(chosenCards);
   }, [data]);
 
   useEffect(() => {
-    if(currentScore > bestScore) {
-      setBestScore(currentScore)
+    if (currentScore > bestScore) {
+      setBestScore(currentScore);
     }
-  }, [currentScore])
+  }, [currentScore]);
 
   useEffect(() => {
-    if(rounds === 2) getBigReset()
-  }, [rounds])
-
-  if(!data) return
-  // console.log("data", data.length);
-  // console.log("active",activeCards);
-  
+    if (rounds === 8) getBigReset();
+  }, [rounds]);
 
   return (
     <div className="body-wrapper">
-      <Scoreboard currentScore={currentScore} bestScore={bestScore} rounds={rounds} />
+      <div className="bg-overlay"></div>
+      <Scoreboard
+        currentScore={currentScore}
+        bestScore={bestScore}
+        rounds={rounds}
+      />
 
-      <GridCard activeCards={activeCards} handleClick={handleClick} />
+      <GridCard
+        activeCards={activeCards}
+        handleClick={handleClick}
+        isShuffling={isShuffling}
+      />
 
-      {winner && <div className="modal-win">
-        <div className="modal-content"> 
-          You are the winner
-          <button className="modal-btn" onClick={() => setWinner(false) }>Play again</button>
+      {winner && (
+        <div className="modal-win">
+          <div className="modal-content win">
+            You are the winner!
+            <button className="modal-btn" onClick={() => setWinner(false)}>
+              Play again
+            </button>
+          </div>
         </div>
-      </div>}
+      )}
 
-      {lost && <div className="modal-loss">
-        <div className="modal-content">
-          Better luck next time
-        <button className="modal-btn" onClick={() => setLost(false) }>Play again</button>
+      {lost && (
+        <div className="modal-loss">
+          <div className="modal-content loss">
+            Better luck next time
+            <button className="modal-btn" onClick={() => setLost(false)}>
+              Play again
+            </button>
+          </div>
         </div>
-      </div>}
+      )}
+
+      <button className="song" onClick={toggleSound}>
+        {" "}
+        {isPlaying ? <GiSoundOn /> : <GiSoundOff />}{" "}
+      </button>
     </div>
   );
 }

@@ -1,8 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react";
 
-
-export default function Scoreboard({currentScore, bestScore, rounds}) {
-
+export default function Scoreboard({ currentScore, bestScore, rounds }) {
   return (
     <>
       <div className="round-display">{rounds}/7 round</div>
@@ -11,5 +9,5 @@ export default function Scoreboard({currentScore, bestScore, rounds}) {
         <div className="best-score">Best score {bestScore} </div>
       </div>
     </>
-  )
+  );
 }
