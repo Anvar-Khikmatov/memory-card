@@ -97,7 +97,7 @@ function App() {
   };
 
   useEffect(() => {
-    audioRef.current = new Audio("/assets/dota2-reborn.mp3");
+    audioRef.current = new Audio(import.meta.env.BASE_URL + 'assets/dota2-reborn.mp3')
     audioRef.current.loop = true;
   }, []);
 
