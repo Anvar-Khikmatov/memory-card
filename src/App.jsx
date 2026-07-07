@@ -4,6 +4,7 @@ import GridCard from "./components/CardGrid.jsx";
 import Scoreboard from "./components/Scoreboard.jsx";
 import { GiSoundOn, GiSoundOff } from "react-icons/gi";
 
+
 function App() {
   const [data, setData] = useState(null);
   const [fullData, setFullData] = useState(null);
@@ -138,7 +139,7 @@ function App() {
   }, [rounds]);
 
   return (
-    <div className="body-wrapper">
+    <div  className="body-wrapper">
       <div className="bg-overlay"></div>
       <Scoreboard
         currentScore={currentScore}

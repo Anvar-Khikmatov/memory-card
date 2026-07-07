@@ -9,10 +9,9 @@ export default function Card({
 }) {
   return (
     <div
+      data-testid="card"
       className={`card-wrapper ${isShuffling ? "hidden" : ""}`}
-      onClick={() => {
-        handleClick(id);
-      }}
+      onClick={() =>  handleClick(id)}
     >
       <img
         src={`https://cdn.cloudflare.steamstatic.com/apps/dota2/images/dota_react/heroes/${imgName}.png`}
